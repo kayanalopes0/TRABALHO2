@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>🎬 Recomendador de Filmes</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(120deg, #f06292, #ba68c8, #7986cb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: white;
+      margin: 0;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    @keyframes gradientBG {
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
+
+    h1 {
+      margin-bottom: 5px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      align-items: center;
+      font-weight: 900;
+      font-size: 2.5em;
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .checkbox-group {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    label {
+      cursor: pointer;
+      font-size: 1.1em;
+      user-select: none;
+    }
+
+    button {
+      padding: 12px 30px;
+      font-size: 1.1em;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #f06292, #ba68c8, #7986cb);
+      border: none;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-bottom: 20px;
+      user-select: none;
+    }
+    button:hover {
+      background: linear-gradient(45deg, #ba68c8, #7986cb, #f06292);
+    }
+
+    #recomendacao {
+      text-align: center;
+      font-size: 1.3em;
+      font-weight: 700;
+      max-width: 360px;
+    }
+
+    iframe {
+      margin-top: 12px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <script>
+    let campoFantasia, campoAventura, campoSuspense, campoTerror, campoComedia;
+    let botaoNovoFilme, areaRecomendacao;
+
+    const listaDeFilmes = {
+      fantasia: [
+        { titulo: "⚡ Harry Potter e a Pedra Filosofal", videoURL: "https://www.youtube.com/embed/VyHV0BRtdxo" },
+        { titulo: "🍫 A Fantástica Fábrica de Chocolate", videoURL: "https://www.youtube.com/embed/54-8OFlQ8Ng" },
+        { titulo: "🐉 A Viagem de Chihiro", videoURL: "https://www.youtube.com/embed/ByXuk9QqQkk" },
+        { titulo: "🧙‍♂️ O Castelo Animado", videoURL: "https://www.youtube.com/embed/iwROgK94zcM" },
+        { titulo: "🐅 As Aventuras de Pi", videoURL: "https://www.youtube.com/embed/4OiMOHRDs14" }
+      ],
+      aventura: [
+        { titulo: "🕷️ Homem-Aranha: No Aranhaverso", videoURL: "https://www.youtube.com/embed/g4Hbz2jLxvQ" },
+        { titulo: "🐉 Como Treinar o Seu Dragão", videoURL: "https://www.youtube.com/embed/naXE14nlhLk" },
+        { titulo: "🔮 Doutor Estranho", videoURL: "https://www.youtube.com/embed/HSzx-zryEgM" },
+        { titulo: "🏹 Jogos Vorazes", videoURL: "https://www.youtube.com/embed/4S9a5V9ODuY" },
+        { titulo: "🚀 Perdido em Marte", videoURL: "https://www.youtube.com/embed/ej3ioOneTy8" }
+      ],
+      suspense: [
+        { titulo: "🕵 Seven: Os Sete Crimes Capitais", videoURL: "https://www.youtube.com/embed/znmZoVkCjpI" },
+        { titulo: "🔐 O Jogo da Imitação", videoURL: "https://www.youtube.com/embed/S5CjKEFb-sM" },
+        { titulo: "🧠 Ilha do Medo", videoURL: "https://www.youtube.com/embed/5iaYLCiq5RM" },
+        { titulo: "📹 Círculo de Fogo", videoURL: "https://www.youtube.com/embed/FPsXp4-4JHk" },
+        { titulo: "👁️ O Homem Invisível", videoURL: "https://www.youtube.com/embed/dSBszuL3oOo" }
+      ],
+      terror: [
+        { titulo: "👻 Invocação do Mal", videoURL: "https://www.youtube.com/embed/k10ETZ41q5o" },
+        { titulo: "😨 Hereditário", videoURL: "https://www.youtube.com/embed/BlZeHXz_uOw" },
+        { titulo: "🧟 Madrugada dos Mortos", videoURL: "https://www.youtube.com/embed/I9NQbK4Arck" },
+        { titulo: "🩸 It: A Coisa", videoURL: "https://www.youtube.com/embed/xKJmEC5ieOk" },
+        { titulo: "🔪 O Massacre da Serra Elétrica", videoURL: "https://www.youtube.com/embed/tGqXRf4zG3E" }
+      ],
+      comedia: [
+        { titulo: "😂 As Branquelas", videoURL: "https://www.youtube.com/embed/TTFCkXgk4tI" },
+        { titulo: "🎤 Escola de Rock", videoURL: "https://www.youtube.com/embed/3PsUJFEBC74" },
+        { titulo: "👶 O Pequenino", videoURL: "https://www.youtube.com/embed/aQ-Hu8Yi-Vw" },
+        { titulo: "🐼 Kung Fu Panda", videoURL: "https://www.youtube.com/embed/5Z01kW5xvel" },
+        { titulo: "🍔 Tá Chovendo Hambúrguer", videoURL: "https://www.youtube.com/embed/l2C2gRgOuw4" }
+      ]
+    };
+
+    function setup() {
+      noCanvas();
+
+      createElement("h1", "🎬 Recomendador de Filmes");
+      createElement("h3", "Escolha um gênero:");
+
+      let container = createDiv().addClass('checkbox-group');
+
+      campoFantasia = createCheckbox("✨ Fantasia", false).parent(container);
+      campoAventura = createCheckbox("🎢 Aventura", false).parent(container);
+      campoSuspense = createCheckbox("🕵 Suspense", false).parent(container);
+      campoTerror = createCheckbox("😱 Terror", false).parent(container);
+      campoComedia = createCheckbox("😂 Comédia", false).parent(container);
+
+      // Quando selecionar um, desmarcar os outros:
+      campoFantasia.changed(() => desmarcarExceto(campoFantasia));
+      campoAventura.changed(() => desmarcarExceto(campoAventura));
+      campoSuspense.changed(() => desmarcarExceto(campoSuspense));
+      campoTerror.changed(() => desmarcarExceto(campoTerror));
+      campoComedia.changed(() => desmarcarExceto(campoComedia));
+
+      botaoNovoFilme = createButton("🎲 Novo Filme").parent(document.body);
+      botaoNovoFilme.mousePressed(gerarFilme);
+
+      areaRecomendacao = createDiv("👋 Escolha um gênero acima e clique no botão.");
+      areaRecomendacao.id("recomendacao");
+      areaRecomendacao.parent(document.body);
+    }
+
+    function desmarcarExceto(selecionado) {
+      let campos = [campoFantasia, campoAventura, campoSuspense, campoTerror, campoComedia];
+      for (let campo of campos) {
+        if (campo !== selecionado) {
+          campo.checked(false);
+        }
+      }
+    }
+
+    function gerarFilme() {
+      let gostosSelecionados = [];
+
+      if (campoFantasia.checked()) gostosSelecionados.push("fantasia");
+      if (campoAventura.checked()) gostosSelecionados.push("aventura");
+      if (campoSuspense.checked()) gostosSelecionados.push("suspense");
+      if (campoTerror.checked()) gostosSelecionados.push("terror");
+      if (campoComedia.checked()) gostosSelecionados.push("comedia");
+
+      if (gostosSelecionados.length === 0) {
+        areaRecomendacao.html("⚠️ Selecione um gênero para receber uma recomendação.");
+        return;
+      }
+
+      const filme = geraRecomendacao(gostosSelecionados);
+      areaRecomendacao.html(`
+        <div style="text-align:center;">
+          <h2>${filme.titulo}</h2>
+          <iframe
+            width="320" height="180"
+            src="${filme.videoURL}"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+      `);
+    }
+
+    function geraRecomendacao(gostos) {
+      let filmesDisponiveis = [];
+
+      for (let gosto of gostos) {
+        filmesDisponiveis = filmesDisponiveis.concat(listaDeFilmes[gosto] || []);
+      }
+
+      if (filmesDisponiveis.length === 0) {
+        return { titulo: "😔 Nenhum filme disponível para sua seleção.", videoURL: "" };
+      }
+
+      return filmeAleatorio(filmesDisponiveis);
+    }
+
+    function filmeAleatorio(lista) {
+      return lista[floor(random(lista.length))];
+    }
+  </script>
+</body>
+</html>
